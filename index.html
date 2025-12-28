@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تنزيل فيديوهات قانونية مجاناً</title>
+<title>تنزيل فيديوهات يوتيوب وتيك توك مجاناً</title>
 <style>
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -48,24 +48,24 @@ input[type="text"]:focus { border-color: #28a745; }
 }
 .btn-download:hover { background-color: #218838; }
 .info { margin-top: 15px; font-size: 0.9rem; color: #666; }
-#status { margin-top: 15px; font-weight: bold; }
+#status { margin-top: 15px; font-weight: bold; min-height: 24px; }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>تنزيل فيديوهات قانونية</h1>
-    <p>يمكنك رفع رابط فيديوهاتك الخاصة أو المحتوى المسموح قانونياً</p>
+    <h1>تنزيل فيديوهات يوتيوب وتيك توك</h1>
+    <p>بدون علامة مائية • مجاني • بدون إعلانات</p>
     
     <input type="text" id="videoUrl" placeholder="ضع رابط الفيديو هنا...">
     <button class="btn-download" onclick="handleDownload()">تنزيل</button>
     
     <div id="status"></div>
-    <div class="info">بدون إعلانات • مجاني • قانوني 100%</div>
+    <div class="info">بضغطك على تنزيل، سيبدأ التحميل المباشر للجهاز.</div>
 </div>
 
 <script>
-function handleDownload() {
+async function handleDownload() {
     const videoUrl = document.getElementById('videoUrl').value.trim();
     const status = document.getElementById('status');
 
@@ -75,17 +75,50 @@ function handleDownload() {
         return;
     }
 
-    // رابط مباشر للفيديوهات القانونية (مثال)  
-    // في الواقع، استبدل هذا بالمسار للفيديوهات الخاصة بك على السيرفر أو ملفات مجانية
-    const downloadLink = videoUrl; 
-
     status.style.color = "#28a745";
-    status.innerText = "تم تجهيز الفيديو! جاري التحميل...";
+    status.innerText = "جاري معالجة الرابط... انتظر قليلاً";
 
-    // فتح رابط التحميل المباشر
-    window.location.href = downloadLink;
+    try {
+        // الاتصال بمحرك التحميل Cobalt
+        const response = await fetch('https://api.cobalt.tools/api/json', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                url: videoUrl,
+                vQuality: "720",
+                isNoWatermark: true 
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.url) {
+            status.innerText = "بدأ التحميل الآن!";
+            
+            // الحل لإجبار المتصفح على التحميل الفوري وليس الفتح
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.href = data.url;
+            downloadAnchor.setAttribute('download', ''); // محاولة إجبار التحميل
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            document.body.removeChild(downloadAnchor);
+            
+        } else {
+            status.style.color = "red";
+            status.innerText = "عذراً، لم نتمكن من جلب هذا الفيديو.";
+        }
+
+    } catch (error) {
+        console.error(error);
+        status.style.color = "red";
+        status.innerText = "حدث خطأ في السيرفر، حاول مرة أخرى.";
+    }
 }
 </script>
 
 </body>
+</html>
 </html>
